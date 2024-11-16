@@ -87,4 +87,34 @@ recognition.onerror = (event) => {
       setTimeout(() => recognition.start(), 500); // Restart after a delay
     }
   };
+  if (annyang) {
+    const commands = {
+      '*speech': (speech) => {
+        display.textContent = speech;
+        if (speech.toUpperCase().startsWith("ADD")) {
+          const numbers = speech
+            .replace(/ADD/g, "")
+            .replace(/AND/g, "")
+            .replace(/DONE/g, "")
+            .trim()
+            .split(/\s+/)
+            .filter((word) => !isNaN(word))
+            .map(Number);
+  
+          const total = numbers.reduce((acc, num) => acc + num, 0);
+          resultValue.textContent = total;
+        } else if (speech.toUpperCase().endsWith("DONE")) {
+          annyang.abort();
+          display.textContent = "Stopped listening.";
+        } else {
+          display.textContent = "Invalid command. Start with ADD and end with DONE.";
+        }
+      },
+    };
+  
+    annyang.addCommands(commands);
+    annyang.start();
+  } else {
+    display.textContent = "Speech Recognition is not supported.";
+  }
   
